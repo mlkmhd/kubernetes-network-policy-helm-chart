@@ -1,0 +1,69 @@
+{{ $namespace := .Release.Namespace }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app-network-policy
+  namespace: {{ $namespace }}
+spec:
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+
+    {{- range $rule := index .Values "ingress" "crds" }}
+    - from:
+        - ipBlock:
+            cidr: {{ index $rule.host }}
+      ports:
+        - port: {{ index $rule.port }}
+    {{- end }} 
+
+    {{- range $rule := index .Values "ingress" "pods" }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ index $rule.namespace }}
+          podSelector:
+            matchLabels:
+              {{- range $k, $v := $rule.labels }}
+              {{- range $kk, $vv := $v }}
+              {{ $kk }}: {{ $vv }}
+              {{- end }}
+              {{- end }}
+      ports:
+        - port: {{ index $rule.port }}
+          protocol: {{ index $rule.protocol }}
+    {{- end }}
+
+  egress:
+
+    {{- range $rule := index .Values "egress" "pods" }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ index $rule.namespace }}
+          podSelector:
+            matchLabels:
+              {{- range $k, $v := $rule.labels }}
+              {{- range $kk, $vv := $v }}
+              {{ $kk }}: {{ $vv }}
+              {{- end }}
+              {{- end }}
+      ports:
+        - port: {{ index $rule.port }}
+          protocol: {{ index $rule.protocol }}
+    {{- end }}
+
+    {{- range $rule := index .Values "egress" "crds" }}
+    - to:
+        - ipBlock:
+            cidr: {{ index $rule.host }}
+      ports:
+        - port: {{ index $rule.port }}
+    {{- end }}  
+
+    - to:
+        - podSelector: {}

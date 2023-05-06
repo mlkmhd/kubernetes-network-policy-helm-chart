@@ -1,0 +1,45 @@
+ingress:
+
+  crds:
+  
+  - name: client
+    host: 192.168.0.0/16
+    port: 8080
+    
+  - name: client
+    host: 192.168.0.0/16
+    port: 8443
+    
+  - name: www-https
+    host: 192.168.1.1/32
+    port: 8443
+
+  pods:
+
+  - name: prometheus
+    namespace: monitoring
+    labels:
+      - app.kubernetes.io/name: prometheus
+    port: 8080
+    protocol: TCP
+
+egress:
+  
+  crds:
+  
+  - name: logstash
+    host: 192.168.1.1/32
+    port: 30310
+  - name: redis
+    host: 192.168.1.1/32
+    port: 30353
+
+
+  pods:
+    
+  - name: kube-dns
+    namespace: kube-system
+    labels:
+      - k8s-app: kube-dns
+    port: 53
+    protocol: UDP
