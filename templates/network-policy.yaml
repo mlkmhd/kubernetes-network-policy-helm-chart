@@ -9,6 +9,10 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+
+  podSelector:
+    matchLabels: {}
+
   ingress:
     - from:
         - podSelector: {}
