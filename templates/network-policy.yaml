@@ -17,7 +17,7 @@ spec:
     - from:
         - podSelector: {}
 
-    {{- range $rule := index .Values "ingress" "crds" }}
+    {{- range $rule := index .Values "ingress" "cidrs" }}
     - from:
         - ipBlock:
             cidr: {{ index $rule.host }}
@@ -61,7 +61,7 @@ spec:
           protocol: {{ index $rule.protocol }}
     {{- end }}
 
-    {{- range $rule := index .Values "egress" "crds" }}
+    {{- range $rule := index .Values "egress" "cidrs" }}
     - to:
         - ipBlock:
             cidr: {{ index $rule.host }}
